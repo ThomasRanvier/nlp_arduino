@@ -1,0 +1,45 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Free Web tutorials" />
+    <meta name="keywords" content="HTML,CSS,XML,JavaScript" />
+    <meta name="author" content="John Doe" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <div>
+      <form name="form1">
+        <input type="text" name="input" value="" /><br />
+        <input
+          type="button"
+          name="bouton"
+          value="Send Password"
+          onClick="sendPass(form1)"
+        />
+      </form>
+    </div>
+  </body>
+  <script>
+    let url = "http://127.0.0.1:5002/";
+
+    sendPass = event => {
+      let xhr = new XMLHttpRequest();
+      xhr.open("POST", url, true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.send(
+        JSON.stringify({
+          password: event.input.value
+        })
+      );
+    };
+
+    fetch(url)
+      .then(res => res.json())
+      .then(out => {
+        console.log("Checkout this JSON! ", out);
+      })
+      .catch(err => {
+        throw err;
+      });
+  </script>
+</html>

@@ -7,6 +7,7 @@ from flask_restful import Resource, Api
 from sqlalchemy import create_engine
 from json import dumps
 from flask_jsonpify import jsonify
+from flask_cors import CORS
 
 
 def serial_ports():
@@ -38,9 +39,13 @@ def serial_ports():
 
 class Home(Resource):
     def get(self):
-        return {"Directeur":"http://127.0.0.1:5002/cible/Directeur",
-                "Laboratoire":"http://127.0.0.1:5002/cible/Laboratoire",
-                "Docteur":"http://127.0.0.1:5002/cible/Docteur"}
+        return {'state': state, 'password': password}
+
+    def post(self):
+        password = request.json['password']
+        print("New password : " + password)
+        return {'status': 'success'}
+
 
 class Server:
 
@@ -49,19 +54,27 @@ class Server:
         self.api = Api(self.app)
         self.api.add_resource(Home, '/')
 
+        @self.app.after_request
+        def after_request(response):
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+            response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+            return response
+
     def start(self):
         self.app.run(port='5002')
 
 def CoArduino():
     while 1:
-        if ser.read().decode('ascii') == 'A':
-            ser.write(b"B")
+        pass
+    #    if ser.read().decode('ascii') == 'A':
+    #        ser.write(b"B")
 
 password = "test"
-
+state = False
 print(serial_ports())
 
-ser = serial.Serial('/dev/ttyS9', 9600)
+#ser = serial.Serial('/dev/ttyS9', 9600)
 s = Server()
 #now keep talking with the client
 
