@@ -1,13 +1,40 @@
-import socket
-import sys
 from _thread import *
-from signal import signal, SIGINT
-
+import serial
+import sys
+import glob
 from flask import Flask, request
 from flask_restful import Resource, Api
 from sqlalchemy import create_engine
 from json import dumps
 from flask_jsonpify import jsonify
+
+
+def serial_ports():
+    """ Lists serial port names
+        :raises EnvironmentError:
+            On unsupported or unknown platforms
+        :returns:
+            A list of the serial ports available on the system
+    """
+    if sys.platform.startswith('win'):
+        ports = ['COM%s' % (i + 1) for i in range(256)]
+    elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
+        # this excludes your current terminal "/dev/tty"
+        ports = glob.glob('/dev/tty[A-Za-z]*')
+    elif sys.platform.startswith('darwin'):
+        ports = glob.glob('/dev/tty.*')
+    else:
+        raise EnvironmentError('Unsupported platform')
+
+    result = []
+    for port in ports:
+        try:
+            s = serial.Serial(port)
+            s.close()
+            result.append(port)
+        except (OSError, serial.SerialException):
+            pass
+    return result
 
 class Home(Resource):
     def get(self):
@@ -25,29 +52,18 @@ class Server:
     def start(self):
         self.app.run(port='5002')
 
-def handler(signal_received, frame):
-    # Handle any cleanup here
-	try:
-		pass
-	except:
-		pass
-	exit()
-
-signal(SIGINT, handler)
-
-def testA():
+def CoArduino():
     while 1:
-        print("A")
+        if ser.read().decode('ascii') == 'A':
+            ser.write(b"B")
 
-def testB():
-    while 1:
-        print("B")
+password = "test"
 
+print(serial_ports())
+
+ser = serial.Serial('/dev/ttyS9', 9600)
 s = Server()
 #now keep talking with the client
 
-start_new_thread(testA, ())
-start_new_thread(testB, ())
+start_new_thread(CoArduino, ())
 s.start()
-
-s.close()
