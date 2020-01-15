@@ -10,6 +10,10 @@ from flask_jsonpify import jsonify
 from flask_cors import CORS
 
 
+password = "test"
+state = False
+
+
 def serial_ports():
     """ Lists serial port names
         :raises EnvironmentError:
@@ -38,13 +42,19 @@ def serial_ports():
     return result
 
 class Home(Resource):
+
     def get(self):
         return {'state': state, 'password': password}
 
     def post(self):
-        password = request.json['password']
-        print("New password : " + password)
-        return {'status': 'success'}
+        global password
+        old = request.json['old']
+        if password == old:
+            password = request.json['password']
+            print("New password : " + password)
+            return {'code': '200'}
+        else:
+            return {'code': '500'}
 
 
 class Server:
@@ -70,8 +80,7 @@ def CoArduino():
     #    if ser.read().decode('ascii') == 'A':
     #        ser.write(b"B")
 
-password = "test"
-state = False
+
 print(serial_ports())
 
 #ser = serial.Serial('/dev/ttyS9', 9600)
