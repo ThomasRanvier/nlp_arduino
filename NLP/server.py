@@ -1,5 +1,7 @@
 from _thread import *
+import speech_recognition as sr
 import serial
+import re
 import sys
 import glob
 from flask import Flask, request
@@ -76,14 +78,30 @@ class Server:
 
 def CoArduino():
     while 1:
-        pass
-    #    if ser.read().decode('ascii') == 'A':
-    #        ser.write(b"B")
+        if ser.read().decode('ascii') == 'A':
+            print("Ecoute en cours...")
+            with sr.Microphone() as source:
+                audio = r.listen(source)
+                try:
+                    text = r.recognize_google(audio, language="fr-FR")
+                    print("Entendu : ", text)
+                    if re.search(password, text):
+                        print("Reconnu")
+                        ser.write(b'B')
+                    else:
+                        print("Non Reconnu")
+                except sr.UnknownValueError:
+                    print("Je n'ai pas compris, peux tu répéter s'il te plait")
+                except sr.RequestError as e:
+                    print("Le service Google Speech API ne fonctionne plus" + format(e))
+
 
 
 print(serial_ports())
 
-#ser = serial.Serial('/dev/ttyS9', 9600)
+r = sr.Recognizer()
+
+ser = serial.Serial('COM10', 9600)
 s = Server()
 #now keep talking with the client
 
