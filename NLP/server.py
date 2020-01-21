@@ -4,17 +4,13 @@ import serial
 import re
 import sys
 import glob
+import json
 from flask import Flask, request
 from flask_restful import Resource, Api
 from sqlalchemy import create_engine
 from json import dumps
 from flask_jsonpify import jsonify
 from flask_cors import CORS
-
-
-password = "test"
-state = False
-
 
 def serial_ports():
     """ Lists serial port names
@@ -53,6 +49,8 @@ class Home(Resource):
         old = request.json['old']
         if password == old:
             password = request.json['password']
+            with open('data/password.json', 'w', encoding='utf-8') as f:
+                json.dump(password, f, ensure_ascii=False, indent=4)
             print("New password : " + password)
             return {'code': '200'}
         else:
@@ -99,6 +97,13 @@ def CoArduino():
 
 print(serial_ports())
 
+state = False
+
+try:
+    with open('data/password.json') as json_data:
+        password = json.load(json_data)
+except:
+    password = "test"   
 r = sr.Recognizer()
 
 ser = serial.Serial('COM10', 9600)
