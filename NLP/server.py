@@ -20,42 +20,12 @@ from scipy.io.wavfile import write
 from pydub import AudioSegment
 
 
-import keyboard #A remove
 
 def handler(signal_received, frame):
     # Handle any cleanup here
     logger.createLog(4, "Arret du serveur")
     logger.saveLog()
     exit(0)
-
-signal(SIGINT, handler)
-
-def serial_ports():
-    """ Lists serial port names
-        :raises EnvironmentError:
-            On unsupported or unknown platforms
-        :returns:
-            A list of the serial ports available on the system
-    """
-    if sys.platform.startswith('win'):
-        ports = ['COM%s' % (i + 1) for i in range(256)]
-    elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
-        # this excludes your current terminal "/dev/tty"
-        ports = glob.glob('/dev/tty[A-Za-z]*')
-    elif sys.platform.startswith('darwin'):
-        ports = glob.glob('/dev/tty.*')
-    else:
-        raise EnvironmentError('Unsupported platform')
-
-    result = []
-    for port in ports:
-        try:
-            s = serial.Serial(port)
-            s.close()
-            result.append(port)
-        except (OSError, serial.SerialException):
-            pass
-    return result
 
 class Logger:
     def __init__(self):
@@ -81,12 +51,7 @@ class Logger:
         with open('data/logs.json', 'w', encoding='utf-8') as f:
             json.dump(self.logs, f, ensure_ascii=False, indent=4)
 
-logger = Logger()
-
 class Home(Resource):
-
-    def get(self):
-        return {'state': state, 'password': password}
 
     def post(self):
         global password
@@ -123,8 +88,32 @@ class Server:
         logger.createLog(4, "Demarage du serveur")
         self.app.run(port='5002')
 
-fs = 44100  # Sample rate
-seconds = 5  # Duration of recording
+def serial_ports():
+    """ Lists serial port names
+        :raises EnvironmentError:
+            On unsupported or unknown platforms
+        :returns:
+            A list of the serial ports available on the system
+    """
+    if sys.platform.startswith('win'):
+        ports = ['COM%s' % (i + 1) for i in range(256)]
+    elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
+        # this excludes your current terminal "/dev/tty"
+        ports = glob.glob('/dev/tty[A-Za-z]*')
+    elif sys.platform.startswith('darwin'):
+        ports = glob.glob('/dev/tty.*')
+    else:
+        raise EnvironmentError('Unsupported platform')
+
+    result = []
+    for port in ports:
+        try:
+            s = serial.Serial(port)
+            s.close()
+            result.append(port)
+        except (OSError, serial.SerialException):
+            pass
+    return result
 
 def CoArduino():
     while 1:
@@ -155,9 +144,16 @@ def CoArduino():
                     logger.createLog(1, "Erreur API Google : " + format(e))
                     print("Le service Google Speech API ne fonctionne plus" + format(e))
 
-print(serial_ports())
+logger = Logger()
+fs = 44100  # Sample rate
+seconds = 5  # Duration of recording
+r = sr.Recognizer()
+ser = serial.Serial(serial_ports()[0], 9600)
+s = Server()
 
-state = False
+signal(SIGINT, handler)
+
+print(serial_ports())
 
 try:
     with open('data/password.json') as json_data:
@@ -167,11 +163,5 @@ except:
     with open('data/password.json', 'w', encoding='utf-8') as f:
             json.dump(password, f, ensure_ascii=False, indent=4)  
  
-r = sr.Recognizer()
-
-ser = serial.Serial('COM10', 9600)
-s = Server()
-#now keep talking with the client
-
 start_new_thread(CoArduino, ())
 s.start()
