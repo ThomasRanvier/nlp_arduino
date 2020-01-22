@@ -1,10 +1,11 @@
-from _thread import *
-import speech_recognition as sr
 import serial
 import re
 import sys
 import glob
 import json
+import os
+from _thread import *
+import speech_recognition as sr
 from flask import Flask, request
 from flask_restful import Resource, Api
 from sqlalchemy import create_engine
@@ -14,6 +15,12 @@ from flask_cors import CORS
 import datetime
 from signal import signal, SIGINT
 from sys import exit
+import sounddevice as sd
+from scipy.io.wavfile import write
+from pydub import AudioSegment
+
+
+import keyboard #A remove
 
 def handler(signal_received, frame):
     # Handle any cleanup here
@@ -116,15 +123,27 @@ class Server:
         logger.createLog(4, "Demarage du serveur")
         self.app.run(port='5002')
 
+fs = 44100  # Sample rate
+seconds = 5  # Duration of recording
+
 def CoArduino():
     while 1:
         if ser.read().decode('ascii') == 'A':
             print("Ecoute en cours...")
             with sr.Microphone() as source:
-                audio = r.listen(source)
+                audio = sd.rec(int(seconds * fs), samplerate=fs, channels=2)
+                sd.wait()  # Wait until recording is finished
+                write('data/output.wav', fs, audio)  # Save as WAV file )
+                song = AudioSegment.from_wav("data/output.wav")
+                song.export("data/output.flac",format = "flac")
                 try:
+                    voice = sr.AudioFile('data/output.flac')
+                    with voice as source:
+                        audio = r.record(source)
                     text = r.recognize_google(audio, language="fr-FR")
                     print("Entendu : ", text)
+                    os.remove("data/output.flac")
+                    os.remove("data/output.wav")
                     if re.search(password, text):
                         logger.createLog(3, "Mot de passe reconnu")
                         ser.write(b'B')
@@ -150,9 +169,9 @@ except:
  
 r = sr.Recognizer()
 
-#ser = serial.Serial('COM10', 9600)
+ser = serial.Serial('COM10', 9600)
 s = Server()
 #now keep talking with the client
 
-#start_new_thread(CoArduino, ())
+start_new_thread(CoArduino, ())
 s.start()
