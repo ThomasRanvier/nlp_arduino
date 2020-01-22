@@ -118,6 +118,15 @@
         onClick="sendPass(form1)"
         value="Enregistrer"
       />
+      <br />
+      <input
+        type="button"
+        class="btn btn-lg btn-primary btn-block"
+        onClick="getLogs()"
+        value="Logs"
+      />
+      </br>
+      <div id="logs"></div>
     </form>
   </body>
   <script>
@@ -131,11 +140,18 @@
           di = document.getElementById("info");
           di.className = "alert alert-success";
           di.innerHTML = "<strong>Success!</strong> Mot de passe changé.";
-        } else {
+        } else if (rep == 500) {
           di = document.getElementById("info");
           di.className = "alert alert-warning";
           di.innerHTML =
             "<strong>Erreur !</strong> Il y a une erreur de mot de passe.";
+        } else if (rep == 220) {
+          logs = JSON.parse(xhr.response)["logs"];
+          di = document.getElementById("logs");
+          di.className = "alert alert-warning";
+          di.innerHTML = logs.map(i => {
+            return "<p>" + i.date + " [" + i.type + "] : " + i.content + "</p>";
+          });
         }
       }
     };
@@ -153,6 +169,16 @@
       } else {
         alert("New Passwords do not match.");
       }
+    };
+
+    getLogs = () => {
+      xhr.open("POST", url, true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.send(
+        JSON.stringify({
+          logs: 1
+        })
+      );
     };
   </script>
 </html>

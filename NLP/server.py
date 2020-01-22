@@ -11,6 +11,17 @@ from sqlalchemy import create_engine
 from json import dumps
 from flask_jsonpify import jsonify
 from flask_cors import CORS
+import datetime
+from signal import signal, SIGINT
+from sys import exit
+
+def handler(signal_received, frame):
+    # Handle any cleanup here
+    logger.createLog(4, "Arret du serveur")
+    logger.saveLog()
+    exit(0)
+
+signal(SIGINT, handler)
 
 def serial_ports():
     """ Lists serial port names
@@ -39,6 +50,32 @@ def serial_ports():
             pass
     return result
 
+class Logger:
+    def __init__(self):
+        try:
+            with open('data/logs.json') as json_data:
+                self.logs = json.load(json_data)
+        except:
+            self.logs = []
+            with open('data/logs.json', 'w', encoding='utf-8') as f:
+                json.dump(self.logs, f, ensure_ascii=False, indent=4)
+
+    def getAll(self):
+        return self.logs
+    
+    def getLasts(self,nb):
+        return self.logs[:nb]
+
+    def createLog(self, prio, msg):
+        t = ['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG']
+        self.logs.insert(0, {'type': t[prio], 'content': msg, 'date': str(datetime.datetime.now())})
+
+    def saveLog(self):
+        with open('data/logs.json', 'w', encoding='utf-8') as f:
+            json.dump(self.logs, f, ensure_ascii=False, indent=4)
+
+logger = Logger()
+
 class Home(Resource):
 
     def get(self):
@@ -46,16 +83,19 @@ class Home(Resource):
 
     def post(self):
         global password
+        global logger
+        if 'logs' in request.json:
+            return {'code': '220', 'logs' : logger.getLasts(5)}
         old = request.json['old']
         if password == old:
             password = request.json['password']
             with open('data/password.json', 'w', encoding='utf-8') as f:
                 json.dump(password, f, ensure_ascii=False, indent=4)
-            print("New password : " + password)
+            logger.createLog(3, "Changement du mot de passe")
             return {'code': '200'}
         else:
+            logger.createLog(2, "Erreur de mot de passe")
             return {'code': '500'}
-
 
 class Server:
 
@@ -72,6 +112,8 @@ class Server:
             return response
 
     def start(self):
+        global logger
+        logger.createLog(4, "Demarage du serveur")
         self.app.run(port='5002')
 
 def CoArduino():
@@ -84,16 +126,15 @@ def CoArduino():
                     text = r.recognize_google(audio, language="fr-FR")
                     print("Entendu : ", text)
                     if re.search(password, text):
-                        print("Reconnu")
+                        logger.createLog(3, "Mot de passe reconnu")
                         ser.write(b'B')
                     else:
-                        print("Non Reconnu")
+                        logger.createLog(3, "Mot de passe non reconnu")
                 except sr.UnknownValueError:
-                    print("Je n'ai pas compris, peux tu répéter s'il te plait")
+                    print("Je n'ai pas compris")
                 except sr.RequestError as e:
+                    logger.createLog(1, "Erreur API Google : " + format(e))
                     print("Le service Google Speech API ne fonctionne plus" + format(e))
-
-
 
 print(serial_ports())
 
@@ -103,12 +144,15 @@ try:
     with open('data/password.json') as json_data:
         password = json.load(json_data)
 except:
-    password = "test"   
+    password = "test"
+    with open('data/password.json', 'w', encoding='utf-8') as f:
+            json.dump(password, f, ensure_ascii=False, indent=4)  
+ 
 r = sr.Recognizer()
 
-ser = serial.Serial('COM10', 9600)
+#ser = serial.Serial('COM10', 9600)
 s = Server()
 #now keep talking with the client
 
-start_new_thread(CoArduino, ())
+#start_new_thread(CoArduino, ())
 s.start()
