@@ -153,8 +153,6 @@ s = Server()
 
 signal(SIGINT, handler)
 
-print(serial_ports())
-
 try:
     with open('data/password.json') as json_data:
         password = json.load(json_data)
