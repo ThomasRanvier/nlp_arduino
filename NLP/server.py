@@ -64,6 +64,7 @@ class Home(Resource):
             with open('data/password.json', 'w', encoding='utf-8') as f:
                 json.dump(password, f, ensure_ascii=False, indent=4)
             logger.createLog(3, "Changement du mot de passe")
+            ser.write(b'C')
             return {'code': '200'}
         else:
             logger.createLog(2, "Erreur de mot de passe")
@@ -138,6 +139,7 @@ def CoArduino():
                         ser.write(b'B')
                     else:
                         logger.createLog(3, "Mot de passe non reconnu")
+                        ser.write(b'N')
                 except sr.UnknownValueError:
                     print("Je n'ai pas compris")
                 except sr.RequestError as e:
