@@ -7,6 +7,7 @@ int ledMDP = 9; // Led quand mot de passe changé
 int ledE = 3; // Led quand ecoute
 bool newMdp = false; // Variable si mot de passe change
 int re = 0;
+bool button = false;
 Servo servo;
 
 void setup() {
@@ -21,15 +22,16 @@ void setup() {
 
 void loop() {
   val = digitalRead(2);  // read the input pin
-  if(val == 1){
+  if(val == 1 && button == false){
+      button = true;
       Serial.print('A');
       digitalWrite(ledE, HIGH);
-      delay(3000);
-      digitalWrite(ledE, LOW);
   }
   if(Serial.available() > 0){
     re = Serial.read();
+    digitalWrite(ledE, LOW);
     if(re == 'B'){ // Si bon password
+      button = false;
       newMdp = false;
       servo.write(0);
       digitalWrite(ledR, HIGH);
@@ -42,6 +44,7 @@ void loop() {
      newMdp = true;
    }
    if(re == 'N'){ // si mauvais password
+      button = false;
       digitalWrite(ledW, HIGH);
       delay(3000);
       digitalWrite(ledW, LOW);
