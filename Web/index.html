@@ -132,6 +132,7 @@
   <script>
     let url = "http://127.0.0.1:5002/";
     var xhr = new XMLHttpRequest();
+    let logs = false;
 
     xhr.onreadystatechange = function() {
       if (xhr.readyState == XMLHttpRequest.DONE) {
@@ -146,12 +147,14 @@
           di.innerHTML =
             "<strong>Erreur !</strong> Il y a une erreur de mot de passe.";
         } else if (rep == 220) {
-          logs = JSON.parse(xhr.response)["logs"];
+          logs = true;
+          rep = JSON.parse(xhr.response)["logs"];
           di = document.getElementById("logs");
           di.className = "alert alert-warning";
-          di.innerHTML = logs.map(i => {
+          content = rep.map(i => {
             return "<p>" + i.date + " [" + i.type + "] : " + i.content + "</p>";
-          });
+          })
+          di.innerHTML = content.toString().split(',').join('');
         }
       }
     };
@@ -172,13 +175,20 @@
     };
 
     getLogs = () => {
-      xhr.open("POST", url, true);
-      xhr.setRequestHeader("Content-Type", "application/json");
-      xhr.send(
-        JSON.stringify({
-          logs: 1
-        })
-      );
+      if(logs){
+        logs = false;
+        di = document.getElementById("logs");
+        di.className = '';
+        di.innerHTML = '';
+      }else{
+        xhr.open("POST", url, true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.send(
+          JSON.stringify({
+            logs: 1
+          })
+        );
+      }
     };
   </script>
 </html>
