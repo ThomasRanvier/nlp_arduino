@@ -77,13 +77,9 @@ Le clignotement de la led orange s'arrète la prochaine fois que l'utilisateur u
 
 ## Appercu du projet fini
 
-Photo de l'installation électronique
+Photo de l'installation électronique et capture d'écran de l'interface web
 
-![alt text](images/montage.png "Photo de l'installation électronique")
-
-Screen de l'interface web
-
-![alt text](images/interface.png "Interface Web")
+<img src="images/montage.png" alt="Photo de l'installation électronique" height="240"/> <img src="images/interface.png" alt="Interface Web" height="240"/>
 
 ## Conclusion et possibles améliorations
 
