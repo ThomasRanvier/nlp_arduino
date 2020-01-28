@@ -8,10 +8,10 @@ Notre projet est un système de verrou pouvant être débloqué par la prononcia
 Il est possible de modifier le mot de passe en utilisant l'interface web.
 
 ## Membres du groupe : 
-* Nicolas Désilets
-* Thomas Ranvier
-* Valentin Comas
-* Arnaud Bressot
+* Nicolas Désilets 11923363
+* Thomas Ranvier 11915001
+* Valentin Comas 11500223
+* Arnaud Bressot 11505990
 
 Nous avons réaliser l'ensemble du projet sur la machine d'Arnaud sans réellement se partager les tâches, chaque personne a apporté ses idées et ses recherches pour les différentes technologies utilisées.
 
@@ -26,9 +26,24 @@ Nous avons réaliser l'ensemble du projet sur la machine d'Arnaud sans réelleme
 * Un servo-moteur
 * Un bouton
 
-### Installation et configuration du serveur web
+### Page Web
+
+Nous avons créer une page index.html qui utilise XMLHttpRequest (en javascript) pour communiquer avec le serveur python.
 
 ### Installation et configuration du serveur python
+
+Il s'agit de Python 3.7.5. Il faudra utiliser la commande suivante pour installer les librairies necessaires.
+
+```
+pip install _thread speech_recognition flask flask_restful json flask_jsonpify flask_cors datetime signal sounddevice scipy pydub serial glob re
+```
+
+Pour lancer le serveur Python :
+
+```
+python /chemin_vers_projet/nlp_arduino/NLP/server.py
+``` 
+
 
 ### Intelligence ajoutée
 
@@ -64,7 +79,11 @@ Le clignotement de la led orange s'arrète la prochaine fois que l'utilisateur u
 
 Photo de l'installation électronique
 
+![alt text](images/montage.png "Photo de l'installation électronique")
+
 Screen de l'interface web
+
+![alt text](images/interface.png "Interface Web")
 
 ## Conclusion et possibles améliorations
 
