@@ -8,7 +8,6 @@ from _thread import *
 import speech_recognition as sr
 from flask import Flask, request
 from flask_restful import Resource, Api
-from sqlalchemy import create_engine
 from json import dumps
 from flask_jsonpify import jsonify
 from flask_cors import CORS
@@ -142,9 +141,11 @@ def CoArduino():
                         ser.write(b'N')
                 except sr.UnknownValueError:
                     print("Je n'ai pas compris")
+                    ser.write(b'N')
                 except sr.RequestError as e:
                     logger.createLog(1, "Erreur API Google : " + format(e))
                     print("Le service Google Speech API ne fonctionne plus" + format(e))
+                    ser.write(b'N')
 
 logger = Logger()
 fs = 44100  # Sample rate
