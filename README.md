@@ -64,26 +64,22 @@ L'utilisateur peut alors prononcer le mot de passe.
 Une fois les 5 secondes écoulées, l'audio enregistré est passé à l'API Google Speech Recognition qui est capable de traduire le contenu oral en un texte écrit.
 On teste ensuite si le mot de passe défini est contenu dans le texte, il y a ensuite deux cas de figure :
 * Si le mot de passe est reconnu, le serveur python envoi un signal positif à l'arduino.
-  En recevant le signal l'arduino ouvre le locet un court instant avant de le refermer automatiquement, la led bleu s'éteind et la led verte s'allume un court instant.
-* Si le mot de passe n'est pas reconnu, le serveur python envoi un signal négatif à l'arduino.
-  Le locet reste fermé, la led bleu s'éteind et la led rouge d'allume un court instant.
+  En recevant le signal l'arduino ouvre le loquet un court instant avant de le refermer automatiquement, la led bleu s'éteint et la led verte s'allume un court instant.
+* Si le mot de passe n'est pas reconnu, le serveur python envoie un signal négatif à l'arduino.
+  Le loquet reste fermé, la led bleu s'éteint et la led rouge d'allume un court instant.
 
 La led bleu permet de symboliser le moment d'écoute, les leds rouges et vertes permettent d'indiquer si le mot de passe est valide ou non.
 
 L'utilisateur peut utiliser l'interface web pour modifier le mot de passe.
 Lorsque le mot de passe est modifié, la led orange clignote.
-Ce clignotement permet d'indiquer à l'utilisateur que le mot de passe à été modifié, cela peut être utile si le système est partagé par plusieurs personnes par exemple.
-Le clignotement de la led orange s'arrète la prochaine fois que l'utilisateur utilise le système, ce qui permet de s'assurer qu'il aura été informé de la modification.
+Ce clignotement permet d'indiquer à l'utilisateur que le mot de passe a été modifié, cela peut être utile si le système est partagé par plusieurs personnes par exemple.
+Le clignotement de la led orange s'arrête la prochaine fois que l'utilisateur utilise le système, ce qui permet de s'assurer qu'il aura été informé de la modification.
 
-## Appercu du projet fini
+## Aperçu du projet fini
 
-Photo de l'installation électronique
+Photo de l'installation électronique et capture d'écran de l'interface web
 
-![alt text](images/montage.png "Photo de l'installation électronique")
-
-Screen de l'interface web
-
-![alt text](images/interface.png "Interface Web")
+<img src="images/montage.png" alt="Photo de l'installation électronique" height="240"/> <img src="images/interface.png" alt="Interface Web" height="240"/>
 
 ## Conclusion et possibles améliorations
 
